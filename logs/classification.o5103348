@@ -1,0 +1,10 @@
+MOVING INTO HOME DIR
+SGE_TASK_ID: undefined
+Thu Apr  4 10:27:31 EDT 2019
+Running classification on subject number 1
+Traceback (most recent call last):
+  File "run_train_test.py", line 6, in <module>
+    import numpy as np  # type: ignore
+ModuleNotFoundError: No module named 'numpy'
+Finished running classification on subject number 1
+Thu Apr  4 10:27:32 EDT 2019

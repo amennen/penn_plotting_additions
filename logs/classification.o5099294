@@ -1,0 +1,7 @@
+MOVING INTO HOME DIR
+SGE_TASK_ID: undefined
+Thu Apr  4 01:19:24 EDT 2019
+Running classification on subject number 1
+python: can't open file 'run_train_test.py': [Errno 2] No such file or directory
+Finished running classification on subject number 1
+Thu Apr  4 01:19:25 EDT 2019

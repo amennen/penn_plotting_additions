@@ -1,0 +1,10 @@
+MOVING INTO HOME DIR
+SGE_TASK_ID: undefined
+Thu Apr  4 10:54:31 EDT 2019
+Running classification on subject number 1
+Traceback (most recent call last):
+  File "run_train_test.py", line 10, in <module>
+    import rtfMRI.utils as utils
+ModuleNotFoundError: No module named 'rtfMRI'
+Finished running classification on subject number 1
+Thu Apr  4 10:54:48 EDT 2019

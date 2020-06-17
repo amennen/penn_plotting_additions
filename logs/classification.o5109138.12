@@ -1,0 +1,5 @@
+MOVING INTO HOME DIR
+SGE_TASK_ID: 12
+Fri Apr  5 11:03:59 EDT 2019
+/opt/sge/default/spool/compute-0-3/job_scripts/5109138: line 29: print: command not found
+Running classification on subject number 108

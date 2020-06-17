@@ -1,0 +1,47 @@
+MOVING INTO HOME DIR
+SGE_TASK_ID: 10
+Mon Apr  8 10:05:57 EDT 2019
+/opt/sge/default/spool/compute-0-4/job_scripts/5178136: line 30: print: command not found
+Running classification on subject number 106
+/data/jag/cnds/amennen/miniconda3/envs/rtAtten/lib/python3.6/site-packages/sklearn/linear_model/sag.py:326: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  "the coef_ did not converge", ConvergenceWarning)
+106
+0
+here
+here
+total number of runs: 6
+106
+1
+6
+1
+2
+3
+4
+5
+1
+total number of runs: 9
+106
+2
+9
+1
+2
+3
+4
+5
+6
+7
+8
+2
+total number of runs: 8
+106
+3
+8
+1
+2
+3
+4
+5
+6
+7
+Finished running classification on subject number 106
+Mon Apr  8 10:58:31 EDT 2019

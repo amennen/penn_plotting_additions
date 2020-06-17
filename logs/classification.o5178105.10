@@ -1,0 +1,14 @@
+MOVING INTO HOME DIR
+SGE_TASK_ID: 10
+Mon Apr  8 06:39:55 EDT 2019
+/opt/sge/default/spool/compute-0-11/job_scripts/5178105: line 30: print: command not found
+Running classification on subject number 106
+Traceback (most recent call last):
+  File "anne_additions/run_train_test.py", line 23, in <module>
+    from anne_additions.getcs2 import train_test_python_classifier
+  File "/data/jag/cnds/amennen/brainiak/rtAttenPenn_cloud/anne_additions/getcs2.py", line 108
+    print('here')
+                ^
+TabError: inconsistent use of tabs and spaces in indentation
+Finished running classification on subject number 106
+Mon Apr  8 06:39:59 EDT 2019

@@ -802,7 +802,7 @@ def plotRestingState(subjects,func_con_subjects, M, d1, d2, d3):
   x,y = nonNan(stat[MDD_ind_con,0],stat[MDD_ind_con,1])
   t,p = scipy.stats.ttest_rel(x,y)
   addComparisonStat_SYM(p/2,0.2,1.2,topL+.1,0.007,0,'$MDD_2 > MDD_4$')
-  printStatsResults('DMN connectivity- 1-sided MDD pre-postd',t,p/2,x,y)
+  printStatsResults('DMN connectivity- 1-sided MDD pre-post',t,p/2,x,y)
   plt.ylabel('DMN within-network connectivity',fontsize=30)
   plt.title('DMN connectivity', fontsize=32)
   plt.xlabel('')

@@ -93,6 +93,40 @@ def transition_matrix(transitions,n_states):
         if s > 0:
             row[:] = [f/s for f in row]
     return M
+    
+def getAUC(subjects, take_half):
+    n_days = 3
+    n_subs = len(subjects)
+    d1_runs = 6
+    d2_runs = 8
+    d3_runs = 7
+    day_average = np.nan*np.zeros((n_subs,3))
+    rtAttenPath = '/data/jux/cnds/amennen/rtAttenPenn/fmridata/behavdata/gonogo'
+    for s in np.arange(n_subs):
+        subjectDir = rtAttenPath + '/' + 'subject' + str(subjects[s])
+        outfile = subjectDir + '/' 'offlineAUC_RTCS.npz'    
+        z=np.load(outfile)
+        AUC = z['auc']
+        if subjects[s] == 106:
+            d1_runs = 5
+        else:
+            d1_runs = 6
+        if take_half:
+            d1_runs = 3
+        day1avg = np.nanmean(AUC[0:d1_runs,0])
+        if take_half:
+            runs_taken = np.array([2,3,4])
+        else:
+            runs_taken = np.arange(d2_runs)
+        day2avg = np.nanmean(AUC[runs_taken,1])
+        if take_half:
+            runs_taken = np.arange(4,d3_runs)
+        else:
+            runs_taken = np.arange(d3_runs)
+        day3avg = np.nanmean(AUC[runs_taken,2])
+        day_average[s,:] = np.array([day1avg,day2avg,day3avg])
+    return day_average
+
 
 def transition_matrix_shift(transitions,n_states,n_shift):
     n=n_states

@@ -56,6 +56,8 @@ plot_transition_matrix = int(sys.argv[4])
 plot_connectivity = int(sys.argv[5])
 plot_faces = int(sys.argv[6])
 plot_networkAnalysis = int(sys.argv[7])
+plot_AUC = int(sys.argv[8])
+
 ########################################################################################################################
 # (1) MADRS depression severity analysis
 
@@ -1554,6 +1556,45 @@ def plotNetworkAnalysis(subjects,combined_diff):
 
 
   return
+
+######## (8) - PLOT AUC
+def plotAUC(subjects):
+  take_half = 0
+  day_average = getAUC(subjects, take_half)
+  # print averages by group
+  print('****')
+  print('average for all subjects is:', np.mean(day_average.flatten()))
+  print('SEM is ', scipy.stats.sem(day_average.flatten()))
+  print('****')
+  print('average for MDD group is:', np.mean(day_average[MDD_ind,:].flatten()))
+  print('SEM is ', scipy.stats.sem(day_average[MDD_ind,:].flatten()))
+  print('****')
+  print('average for HC group is:', np.mean(day_average[HC_ind,:].flatten()))
+  print('SEM is ', scipy.stats.sem(day_average[HC_ind,:].flatten()))
+  yfont=0.4
+  yfontsize=25
+  stat = day_average
+  fig,ax = plotPosterStyle_DF(stat,subjects)
+  plt.ylim([0.2,1.1])
+  # plt.text(-.4,yfont,'harder to ignore\nnegative faces',fontsize=yfontsize,va='top',ha='left')
+  # plt.text(-.4,-1*yfont,'harder to ignore\nneutral faces',fontsize=yfontsize,va='bottom', ha='left')
+  plt.xticks(np.arange(3),('V2\nNF 1', 'V3\nMid NF', 'V4\nNF 3'),fontsize=30)
+  plt.plot([-1,5],[0.5,0.5], '--', color='k', lw=1)
+  # x,y = nonNan(stat[HC_ind,0],stat[MDD_ind,0])
+  # t,p = scipy.stats.ttest_ind(x,y)
+  # addComparisonStat_SYM(p,-.2,.2,topL,0.05,0,r'$MDD \neq HC$')
+  # printStatsResults('behav sad bias 2-tailed MDD/HC, V1',t,p,x,y)
+  # x,y = nonNan(stat[MDD_ind,0],stat[MDD_ind,2])
+  # t,p = scipy.stats.ttest_rel(x,y)
+  # addComparisonStat_SYM(p/2,0.2,2.2,topL+.2,0.05,0,'$MDD_1 < MDD_5$')
+  # printStatsResults('behav sad bias 1-tailed MDD only V1-V5, V1',t,p/2,x,y)
+  plt.ylabel('')
+  plt.title('')
+  plt.xticks(np.arange(3),('', '', '', ''),fontsize=30)
+  plt.xlabel("")
+  plt.savefig('thesis_plots_checked/AUC.eps')
+  return
+
 ##########################################################################################
 
 def main():
@@ -1573,7 +1614,8 @@ def main():
   if plot_networkAnalysis:
     combined_diff = plotBehavGoNoGo(subjects)
     plotNetworkAnalysis(subjects,combined_diff)
-
+  if plot_AUC:
+    plotAUC(subjects)
   return
 
 if __name__ == "__main__":

@@ -40,9 +40,12 @@ from anne_additions.plotting_pretty.commonPlotting import *
 import matplotlib.pyplot as plt
 import math
 
+# new version 8/7/20: setting path as global variable
+PROJECT_PATH =  '/cbica/projects/rtAtten'
+PROJECT_DATA_PATH = PROJECT_PATH + '/' + 'rtAttenPenn'
+
 def getMADRSscoresALL():
-  projectDir = '/data/jux/cnds/amennen/rtAttenPenn/'
-  csv_fn = projectDir + 'MADRS.csv'
+  csv_fn = PROJECT_DATA_PATH  + '/' +  'MADRS.csv'
   nVisits = 4
   MADRS_SCORES = {}
   with open(csv_fn) as csv_file:
@@ -101,7 +104,7 @@ def getAUC(subjects, take_half):
     d2_runs = 8
     d3_runs = 7
     day_average = np.nan*np.zeros((n_subs,3))
-    rtAttenPath = '/data/jux/cnds/amennen/rtAttenPenn/fmridata/behavdata/gonogo'
+    rtAttenPath = PROJECT_DATA_PATH  + '/' + 'fmridata/behavdata/gonogo'
     for s in np.arange(n_subs):
         subjectDir = rtAttenPath + '/' + 'subject' + str(subjects[s])
         outfile = subjectDir + '/' 'offlineAUC_RTCS.npz'    
@@ -148,44 +151,6 @@ def getSpecificTypes(specific_types):
     neut_distface_blocks = np.argwhere(specific_types == 1)[:,0]
     neut_distscene_blocks = np.argwhere(specific_types == 3)[:,0]
     return sad_blocks, happy_blocks, neut_distface_blocks, neut_distscene_blocks
-
-# def getMADRSscoresALL():
-#   projectDir = '/data/jux/cnds/amennen/rtAttenPenn/'
-#   csv_fn = projectDir + 'MADRS.csv'
-#   nVisits = 4
-#   MADRS_SCORES = {}
-#   with open(csv_fn) as csv_file:
-#       csv_reader = csv.reader(csv_file, delimiter=',')
-#       line_count = 0
-#       for row in csv_reader:
-#           if len(row) > 0:
-#                   if 'RT' in row[0]:
-#                           subjectID = row[0]
-#                           subject_number = np.int(row[1])
-#                           goodrow=row
-#                           subject_scores = np.zeros((nVisits,))
-#                           subject_scores.fill(np.nan)
-#                           nInfo = len(goodrow)
-#                           for v in np.arange(2,nInfo):
-#                                   if len(goodrow[v]) > 0:
-#                                           subject_scores[v-2] = np.int(goodrow[v])
-#                           MADRS_SCORES[subject_number] = subject_scores
-#   return MADRS_SCORES
-
-# def getMADRSdiff(MADRS_SCORES,allsubjects):
-#   nSubs = len(allsubjects)
-#   diff_v5_v1 = np.zeros((nSubs,))
-#   diff_v6_v1 = np.zeros((nSubs,))
-#   diff_v7_v1 = np.zeros((nSubs,))
-
-#   for s in np.arange(nSubs):
-#     subject_num  = allsubjects[s]
-#     this_sub_madrs = MADRS_SCORES[subject_num]
-#     diff_v5_v1[s] = this_sub_madrs[1] - this_sub_madrs[0]
-#     diff_v6_v1[s] = this_sub_madrs[2] - this_sub_madrs[0]
-#     diff_v7_v1[s] = this_sub_madrs[3] - this_sub_madrs[0]
-#   return diff_v5_v1,diff_v6_v1,diff_v7_v1
-
 
 def analyzeBehavGoNoGo(subjects):
     realtime = 0
@@ -365,7 +330,7 @@ def consecutive(data,indices, step_size=1):
     return fixations,indices
 
 def correlateROICS(subjects,take_half):
-    rtAttenPath = '/data/jux/cnds/amennen/rtAttenPenn/fmridata/behavdata/gonogo'
+    rtAttenPath = PROJECT_DATA_PATH  + '/' + 'fmridata/behavdata/gonogo'
     n_days = 3
     d1_runs = 6
     d2_runs = 8
@@ -436,7 +401,7 @@ def correlateROICS(subjects,take_half):
 def buildMasterDict(subjects,take_half):
     all_x = {}
     all_opacity = {}
-    rtAttenPath = '/data/jux/cnds/amennen/rtAttenPenn/fmridata/behavdata/gonogo'
+    rtAttenPath = PROJECT_DATA_PATH  + '/' + 'fmridata/behavdata/gonogo'
     master_x = []
     master_opacity=[]
     n_days = 3
@@ -545,7 +510,7 @@ def buildTransitionMatrix(subjects,all_x,bins,n_shift1,n_shift2):
 def getGazeData(subjects):
     # this is where the results for the fixations are stored after the matlab file
     # want: initial orientation, total ratio, first dwell time
-    results = '/data/jux/cnds/amennen/rtAttenPenn/gazedata/all_fixations.mat'
+    results = PROJECT_DATA_PATH  + '/' + 'gazedata/all_fixations.mat'
     HC_ind = np.argwhere(subjects<100)[:,0]
     MDD_ind = np.argwhere(subjects>100)[:,0]
     d = scipy.io.loadmat(results,struct_as_record=False)
@@ -699,12 +664,12 @@ def calculatePairwiseConnectivity(network_A,network_B,correlation_matrix,full_DF
     return across_ROI_mean
 
 def getFunctionalCon(subjects):
-    powerAtlas = '/data/jux/cnds/amennen/Power/power264MNI_resampled_amygdala.nii.gz'
-    noise_save_dir = '/data/jux/cnds/amennen/rtAttenPenn/fmridata/Nifti/derivatives/resting/clean'
-    amygdala_mask = '/data/jux/cnds/amennen/rtAttenPenn/fmridata/Nifti/derivatives/mni_anat/LAMYG_in_MNI_overlapping.nii.gz'
+    powerAtlas = PROJECT_PATH + '/' + 'Power/power264MNI_resampled_amygdala.nii.gz'
+    noise_save_dir = PROJECT_DATA_PATH + '/' + 'fmridata/Nifti/derivatives/resting/clean'
+    amygdala_mask = PROJECT_DATA_PATH + '/' + 'fmridata/Nifti/derivatives/mni_anat/LAMYG_in_MNI_overlapping.nii.gz'
 
     nROI = 264
-    labelsFile = '/data/jag/cnds/amennen/Power/Neuron_consensus_264.csv'
+    labelsFile = PROJECT_PATH + '/' + 'Power/Neuron_consensus_264.csv'
     z = pd.read_csv(labelsFile)
     complete_labels=z[1:]
     ROI = complete_labels['ROI']
@@ -796,14 +761,13 @@ def getRunResponse(category,run,all_start_timing,n_TR,ROI_act):
   return run_response
 
 def getFaces3dTProjectData(subjects,ROI):
-    fmriprep_out="/data/jux/cnds/amennen/rtAttenPenn/fmridata/Nifti/derivatives/fmriprep"
-    task_path = '/data/jux/cnds/amennen/rtAttenPenn/fmridata/behavdata/faces'
-    #save_path = '/data/jux/cnds/amennen/rtAttenPenn/fmridata/Nifti/derivatives/afni/first_level/normalized_runs_baseline'
-    save_path = '/data/jux/cnds/amennen/rtAttenPenn/fmridata/Nifti/derivatives/afni/first_level/highpass_normalized_runs_baseline'
-    amygdala_mask = '/data/jux/cnds/amennen/rtAttenPenn/fmridata/Nifti/derivatives/mni_anat/LAMYG_in_MNI_overlapping.nii.gz'
-    timing_path = '/data/jux/cnds/amennen/rtAttenPenn/fmridata/Nifti/derivatives/afni/first_level/timing_files';
-    analyses_out = '/data/jux/cnds/amennen/rtAttenPenn/fmridata/Nifti/derivatives/afni/first_level/stats'
-    ROI_DIR = '/data/jux/cnds/amennen/rtAttenPenn/MNI_things/clusters'
+    fmriprep_out = PROJECT_DATA_PATH + '/' + "fmridata/Nifti/derivatives/fmriprep"
+    task_path = PROJECT_DATA_PATH + '/' + 'fmridata/behavdata/faces'
+    save_path = PROJECT_DATA_PATH + '/' + 'fmridata/Nifti/derivatives/afni/first_level/highpass_normalized_runs_baseline'
+    amygdala_mask = PROJECT_DATA_PATH + '/' + 'fmridata/Nifti/derivatives/mni_anat/LAMYG_in_MNI_overlapping.nii.gz'
+    timing_path = PROJECT_DATA_PATH + '/' + 'fmridata/Nifti/derivatives/afni/first_level/timing_files';
+    analyses_out = PROJECT_DATA_PATH + '/' + 'fmridata/Nifti/derivatives/afni/first_level/stats'
+    ROI_DIR = PROJECT_DATA_PATH + '/' + 'MNI_things/clusters'
     # cluster indices 1& 2 is anterior cingulate  (dorsal & rostral)
     # cluster index 9 is for amygdalaj
     cluster = 9

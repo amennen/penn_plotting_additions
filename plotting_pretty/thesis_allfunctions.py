@@ -41,7 +41,7 @@ import matplotlib.pyplot as plt
 import math
 
 # new version 8/7/20: setting path as global variable
-PROJECT_PATH =  '/cbica/projects/rtAtten'
+PROJECT_PATH =  '/cbica/projects/rtAtten/amennen/' # TODO: remove the amennen once done copying over
 PROJECT_DATA_PATH = PROJECT_PATH + '/' + 'rtAttenPenn'
 
 def getMADRSscoresALL():
@@ -760,6 +760,62 @@ def getRunResponse(category,run,all_start_timing,n_TR,ROI_act):
   run_response = np.nanmean(np.concatenate((block1[:,np.newaxis],block2[:,np.newaxis],block3[:,np.newaxis]),axis=1),axis=1)
   return run_response
 
+def getFacesBehav(subjects, ID_LIST):
+    behavdata = PROJECT_DATA_PATH + '/' + 'fmridata/behavdata/faces'
+    CONDITION=5
+    RT=17
+    ACC=16
+    ndays=2
+
+    HC_ind = np.argwhere(subjects<100)[:,0]
+    MDD_ind = np.argwhere(subjects>100)[:,0]
+    nsubjects = len(subjects)
+    all_sadbias = np.zeros((nsubjects,ndays))
+    all_happybias = np.zeros((nsubjects,ndays))
+    all_acc = np.zeros((nsubjects,ndays))
+    all_sadbias_acc = np.zeros((nsubjects,ndays))
+    all_happybias_acc = np.zeros((nsubjects,ndays))
+    for s in np.arange(nsubjects):
+        ID = ID_LIST[s]
+        for d in np.arange(ndays):
+            day = d + 1
+            happy_RT = []
+            neutral_RT = []
+            fear_RT = []
+            happy_acc = []
+            neutral_acc = []
+            fear_acc = []
+            sub_acc = []
+            file_name = glob.glob(behavdata + '/' + ID + '/' + ID + '_Day' + str(day) + '_Scanner' + '*.csv')
+            print(file_name[0])
+            with open(file_name[0]) as csv_file:
+                csv_reader = csv.reader(csv_file, delimiter=',')
+                line_count = 0
+                for row in csv_reader:
+                    if row[0] == 'A' or row[0] == 'B': # loop only through trial rows
+                        this_condition = row[CONDITION]
+                        this_RT = row[RT]
+                        this_acc = row[ACC]
+                        if this_condition == 'Happy':
+                            if this_RT:
+                                happy_RT.append(np.float64(this_RT))
+                            happy_acc.append(np.float64(this_acc))
+                        elif this_condition == 'Fearful':
+                            if this_RT:
+                                fear_RT.append(np.float64(this_RT))
+                            fear_acc.append(np.float64(this_acc))
+                        elif this_condition == 'Neutral':
+                            if this_RT:
+                                neutral_RT.append(np.float64(this_RT))
+                            neutral_acc.append(np.float64(this_acc))
+                        sub_acc.append(np.float64(this_acc))
+            all_sadbias[s,d] = np.nanmean(neutral_RT) - np.nanmean(fear_RT)
+            all_happybias[s,d] = np.nanmean(neutral_RT) - np.nanmean(happy_RT)
+            all_sadbias_acc[s,d] = np.nanmean(neutral_acc) - np.nanmean(fear_acc)
+            all_happybias_acc[s,d] = np.nanmean(neutral_acc) - np.nanmean(happy_acc)
+            all_acc[s,d] = np.nanmean(sub_acc)
+    return all_sadbias, all_happybias, all_acc, all_sadbias_acc, all_happybias_acc
+
 def getFaces3dTProjectData(subjects,ROI):
     fmriprep_out = PROJECT_DATA_PATH + '/' + "fmridata/Nifti/derivatives/fmriprep"
     task_path = PROJECT_DATA_PATH + '/' + 'fmridata/behavdata/faces'
@@ -774,12 +830,15 @@ def getFaces3dTProjectData(subjects,ROI):
     amyg_cluster = "{0}/cluster{1}sphere.nii.gz".format(ROI_DIR,cluster+1)
     all_categories = ['fearful','happy', 'neutral', 'object']
     dorsal_acc = "{0}/cluster{1}sphere.nii.gz".format(ROI_DIR,0+1)
+    acc = "{0}/cluster1and2sphere.nii.gz".format(ROI_DIR)
     if ROI == 'amyg_overlapping':
         mask = amygdala_mask
     elif ROI == 'amyg_cluster':
         mask = amyg_cluster
     elif ROI == 'dorsal_acc':
         mask = dorsal_acc
+    elif ROI == 'acc':
+        mask = acc
     HC_ind = np.argwhere(subjects<100)[:,0]
     MDD_ind = np.argwhere(subjects>100)[:,0]
     sessions = [1,3]

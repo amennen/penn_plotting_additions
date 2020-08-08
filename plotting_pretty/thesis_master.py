@@ -2,7 +2,6 @@ import numpy as np
 import glob 
 import sys
 import os
-import os
 import scipy
 import glob
 import argparse
@@ -10,9 +9,7 @@ import sys
 # Add current working dir so main can be run from the top level rtAttenPenn directory
 sys.path.append(os.getcwd())
 import rtfMRI.utils as utils
-import rtfMRI.ValidationUtils as vutils
 from rtfMRI.RtfMRIClient import loadConfigFile
-from rtfMRI.Errors import ValidationError
 from numpy.polynomial.polynomial import polyfit
 import matplotlib
 import matplotlib.pyplot as plt
@@ -39,6 +36,10 @@ import statsmodels.stats.multicomp
 colors = ['#636363','#de2d26'] 
 # all subjects and indices for each group
 subjects = np.array([1,2,3,4,5,6,7,8,9,10,11,12,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115])
+subjects_id_list = ['RT002', 'RT003', 'RT020', 'RT022', 'RT025', 'RT026', 'RT028', 'RT030', 'RT031', 'RT032', 'RT033',
+                    'RT040', 'RT008', 'RT009', 'RT013', 'RT014', 'RT015', 'RT018', 'RT021', 'RT024', 'RT027', 'RT029',
+                    'RT034', 'RT035', 'RT036', 'RT037', 'RT039']
+
 # these are the subjects that got resting state data
 func_con_subjects = np.array([3,4,5,6,7,8,9,10,11,12,106,107,108,109,110,111,112,113,114,115])
 HC_ind = np.argwhere(subjects<100)[:,0]
@@ -57,7 +58,7 @@ plot_connectivity = int(sys.argv[5])
 plot_faces = int(sys.argv[6])
 plot_networkAnalysis = int(sys.argv[7])
 plot_AUC = int(sys.argv[8])
-
+plot_faces_behav = int(sys.argv[9])
 ########################################################################################################################
 # (1) MADRS depression severity analysis
 
@@ -340,7 +341,84 @@ def plotGaze(subjects,M,d1,d2,d3):
   plt.xticks(np.arange(4),('', '', '', ''),fontsize=30)
   plt.xlabel('')
   plt.savefig('thesis_plots_checked/gaze_totalviewing_dysphoric.eps')
-  #plt.show()
+
+
+  # NEW FOR REVISIONS - plot the same but with POSITIVE
+  stat = np.nanmean(total_viewing_time[:,:,:,POSITIVE-1],axis=1)
+  topL=0.33
+  fig,ax = plotPosterStyle_DF(stat[:,np.array([0,1,2,3])],subjects)
+  plt.ylim([0,.62])
+  plt.yticks(np.array([0,0.2,0.4,0.6]),fontsize=25)
+  x,y = nonNan(stat[MDD_ind,0],stat[HC_ind,0])
+  t,p = scipy.stats.ttest_ind(x,y)
+  addComparisonStat_SYM(p/2,-.2,.2,0.4,0.025,0,'$MDD > HC$')
+  printStatsResults('total viewing ratio positive 1-tailed MDD-HC V1',t,p/2,x,y)
+  x,y = nonNan(stat[MDD_ind,1],stat[HC_ind,1])
+  t,p = scipy.stats.ttest_ind(x,y)
+  addComparisonStat_SYM(p/2,0.8,1.2,topL,0.025,0,'$MDD > HC$')
+  printStatsResults('total viewing ratio positive  1-tailed MDD-HC V3',t,p/2,x,y)
+
+  x,y = nonNan(stat[MDD_ind,2],stat[HC_ind,2])
+  t,p = scipy.stats.ttest_ind(x,y)
+  addComparisonStat_SYM(p/2,1.8,2.2,topL,0.025,0,'$MDD > HC$')
+  printStatsResults('total viewing ratio positive 1-tailed MDD-HC V5',t,p/2,x,y)
+
+  x,y = nonNan(stat[MDD_ind,0],stat[MDD_ind,2])
+  t,p = scipy.stats.ttest_rel(x,y)
+  addComparisonStat_SYM(p/2,0.2,2.2,0.51,0.025,0,'$MDD_1 > MDD_5$')
+  printStatsResults('total viewing ratio positive  1-tailed MDD V1-5',t,p/2,x,y)
+
+  x,y = nonNan(stat[MDD_ind,3],stat[HC_ind,3])
+  t,p = scipy.stats.ttest_ind(x,y)
+  addComparisonStat_SYM(p/2,2.8,3.2,topL,0.025,0,'$MDD > HC$')
+  printStatsResults('total viewing ratio positive  1-tailed MDD-HC V6',t,p/2,x,y)
+  plt.ylabel('')
+  plt.title('')
+  plt.xticks(np.arange(4),('', '', '', ''),fontsize=30)
+  plt.xlabel('')
+  plt.savefig('thesis_plots_checked/gaze_totalviewing_positive.eps')
+  
+  # NEW FOR REVISIONS maintenence on positive images
+  stat = np.nanmean(fixation_durations_first_time[:,:,:,POSITIVE-1],axis=1)
+  topL=0.27
+  fig,ax = plotPosterStyle_DF(stat[:,np.array([0,1,2,3])],subjects)
+  plt.ylim([0,.42])
+  plt.yticks(np.array([0,0.2,0.4]),fontsize=25)
+  #plt.xticks(np.arange(4),('Pre NF', 'Mid NF' ,'Post NF', '1M FU'))
+  x,y = nonNan(stat[MDD_ind,0],stat[HC_ind,0])
+  t,p = scipy.stats.ttest_ind(x,y)
+  addComparisonStat_SYM(p/2,-.2,.2,topL,0.01,0,'$MDD > HC$')
+  printStatsResults('fixation ratio positive 1-tailed MDD-HC V1',t,p/2,x,y)
+
+  x,y = nonNan(stat[MDD_ind,1],stat[HC_ind,1])
+  t,p = scipy.stats.ttest_ind(x,y)
+  addComparisonStat_SYM(p/2,0.8,1.2,topL,0.01,0,'$MDD > HC$')
+  printStatsResults('fixation ratio positive 1-tailed MDD-HC V3',t,p/2,x,y)
+
+  x,y = nonNan(stat[MDD_ind,2],stat[HC_ind,2])
+  t,p = scipy.stats.ttest_ind(x,y)
+  addComparisonStat_SYM(p/2,1.8,2.2,topL,0.01,0,'$MDD > HC$')
+  printStatsResults('fixation ratio positive 1-tailed MDD-HC V5',t,p/2,x,y)
+
+  x,y = nonNan(stat[MDD_ind,0],stat[MDD_ind,2])
+  t,p = scipy.stats.ttest_rel(x,y)
+  addComparisonStat_SYM(p/2,0.2,2.2,0.35,0.01,0,'$MDD_1 > MDD_5$')
+  printStatsResults('fixation ratio positive 1-tailed MDD V1-V5',t,p/2,x,y)
+
+  x,y = nonNan(stat[MDD_ind,3],stat[HC_ind,3])
+  t,p = scipy.stats.ttest_ind(x,y)
+  addComparisonStat_SYM(p/2,2.8,3.2,topL,0.01,0,'$MDD > HC$')
+  printStatsResults('fixation ratio positive 1-tailed MDD-HC V6',t,p/2,x,y)
+  plt.ylabel('')
+  plt.title('')
+  plt.xticks(np.arange(4),('', '', '', ''),fontsize=30)
+  plt.xlabel('')
+  plt.savefig('thesis_plots_checked/gaze_firstfix_positive.eps')
+
+
+
+
+
 
   # (4) plot total view time ratio to dysphoric and MADRS decrease relationship
   data_mat = np.nanmean(total_viewing_time[:,:,:,DYSPHORIC-1],axis=1) # average over all trials
@@ -437,7 +515,7 @@ def plotGaze(subjects,M,d1,d2,d3):
   plt.xticks(np.arange(4),('', '', '', ''),fontsize=30)
   plt.xlabel('')
   plt.savefig('thesis_plots_checked/gaze_firstfix_dysphoric.eps')
-  #plt.show()
+  
 
   # calculate interaction between changes in fixation during to dysphoric and group
   stat = np.nanmean(fixation_durations_first_time[:,:,:,DYSPHORIC-1],axis=1)
@@ -955,6 +1033,98 @@ def plotRestingState(subjects,func_con_subjects, M, d1, d2, d3):
 ####################################################### FACES TASK ANALYSIS ############################################
 def plotFaces(subjects):
   colors_dark = ['#636363','#de2d26']
+  
+  # for preregistration -- check dorsal_acc ROI
+  negative_ts, neutral_ts, happy_ts, nTR = getFaces3dTProjectData(subjects, 'acc')
+  negative_diff = negative_ts - neutral_ts
+  negative_diff_block = negative_diff[:,7:16,:]
+  day = 0
+  # average time series over block, now shifted
+  mdd_average = np.mean(negative_diff_block[MDD_ind,:,day],axis=1)
+  hc_average = np.mean(negative_diff_block[HC_ind,:,day],axis=1)
+  t,p = scipy.stats.ttest_ind(mdd_average,hc_average)
+  printStatsResults('ACC - average neg-neutral time series on day 1 difference 1-sided',t,p/2,mdd_average,hc_average)
+  negative_diff_block = negative_diff[:,7:16,:]
+
+  # (1) plot difference in neg - neutral faces pre-neurofeedback
+  fig = plt.subplots(figsize=(19,10))
+  sns.despine()
+  x = np.arange(nTR)
+  day=0
+  y = negative_diff[HC_ind,:,day]
+  ym = np.mean(y,axis=0)
+  yerr = scipy.stats.sem(y,axis=0)
+  plt.errorbar(x,ym,yerr=yerr,linewidth=5,color=colors_dark[0])
+  y = negative_diff[MDD_ind,:,day]
+  ym = np.mean(y,axis=0)
+  yerr = scipy.stats.sem(y,axis=0)
+  plt.errorbar(x,ym,yerr=yerr,linewidth=5,color=colors_dark[1])
+  labels_pos_v = np.concatenate([np.arange(-5,nTR)])
+  labels_pos = labels_pos_v.astype(np.str)
+  plt.xticks(np.arange(nTR),labels_pos,fontsize=25)
+  plt.yticks(fontsize=25)
+  plt.text(5, 0.35, 'stim on', ha='center', va='bottom', color='k',fontsize=25)
+  plt.text(13, 0.35, 'stim off', ha='center', va='bottom', color='k',fontsize=25)
+  # plt.ylabel('negative - neutral LA activity', fontsize=30)
+  # plt.xlabel('TR relative to block start', fontsize=30)
+  # plt.title('Pre NF', fontsize=35)
+  plt.ylabel('')
+  plt.xlabel('')
+  plt.title('')
+  plt.plot([5,5],[-10,0.3],'--', lw=2, c='k')
+  plt.plot([13,13],[-10,0.3],'--', lw=2, c='k')
+  plt.ylim([-.7,.7])
+  x,y = nonNan(negative_diff[MDD_ind,14,day],negative_diff[HC_ind,14,day])
+  t,p = scipy.stats.ttest_ind(x,y)
+  #plt.legend(loc=2)
+  addComparisonStat_SYM(p/2,14,14,0.4,0.05,0,'$MDD > HC$')
+  printStatsResults('ACC neg-neutral time series on day 1, tr 14, MDD-HC 1-sided',t,p/2,x,y)
+  plt.savefig('thesis_plots_checked/ACC_faces_LA_diff_day_1.eps')
+
+  # now repeat for happy ts
+  pos_diff = happy_ts - neutral_ts
+  pos_diff_block = pos_diff[:,7:16,:]
+  day = 0
+  # average time series over block, now shifted
+  mdd_average = np.mean(pos_diff_block[MDD_ind,:,day],axis=1)
+  hc_average = np.mean(pos_diff_block[HC_ind,:,day],axis=1)
+  t,p = scipy.stats.ttest_ind(mdd_average,hc_average)
+  printStatsResults('ACC - average POS-neutral time series on day 1 difference 1-sided',t,p/2,mdd_average,hc_average)
+  
+  # (2) plot difference in pos - neutral faces pre-neurofeedback
+  fig = plt.subplots(figsize=(19,10))
+  sns.despine()
+  x = np.arange(nTR)
+  day=0
+  y = pos_diff[HC_ind,:,day]
+  ym = np.mean(y,axis=0)
+  yerr = scipy.stats.sem(y,axis=0)
+  plt.errorbar(x,ym,yerr=yerr,linewidth=5,color=colors_dark[0])
+  y = pos_diff[MDD_ind,:,day]
+  ym = np.mean(y,axis=0)
+  yerr = scipy.stats.sem(y,axis=0)
+  plt.errorbar(x,ym,yerr=yerr,linewidth=5,color=colors_dark[1])
+  labels_pos_v = np.concatenate([np.arange(-5,nTR)])
+  labels_pos = labels_pos_v.astype(np.str)
+  plt.xticks(np.arange(nTR),labels_pos,fontsize=25)
+  plt.yticks(fontsize=25)
+  plt.text(5, 0.35, 'stim on', ha='center', va='bottom', color='k',fontsize=25)
+  plt.text(13, 0.35, 'stim off', ha='center', va='bottom', color='k',fontsize=25)
+  plt.ylabel('')
+  plt.xlabel('')
+  plt.title('')
+  plt.plot([5,5],[-10,0.3],'--', lw=2, c='k')
+  plt.plot([13,13],[-10,0.3],'--', lw=2, c='k')
+  plt.ylim([-.7,.7])
+  x,y = nonNan(pos_diff[MDD_ind,14,day],pos_diff[HC_ind,14,day])
+  t,p = scipy.stats.ttest_ind(x,y)
+  #plt.legend(loc=2)
+  addComparisonStat_SYM(p/2,14,14,0.4,0.05,0,'$MDD > HC$')
+  printStatsResults('ACC pos-neutral time series on day 1, tr 14, MDD-HC 1-sided',t,p/2,x,y)
+  plt.savefig('thesis_plots_checked/ACC_faces_POS_diff_day_1.eps')
+
+
+
   # second input is ROI - this amygdala overlapping
   negative_ts, neutral_ts, happy_ts, nTR = getFaces3dTProjectData(subjects,'amyg_overlapping')
   # subtract negative - neutral time series
@@ -1103,119 +1273,74 @@ def plotFaces(subjects):
   plt.savefig('thesis_plots_checked/LA_change_vs_MADRS.pdf')
   #plt.show()
 
-  # not used - plotting each day at a time
-  # fig = plt.subplots(figsize=(19,10))
-  # sns.despine()
-  # x = np.arange(nTR)
-  # day=0
-  # y = negative_ts[HC_ind,:,day]
-  # ym = np.mean(y,axis=0)
-  # yerr = scipy.stats.sem(y,axis=0)
-  # plt.errorbar(x,ym,yerr=yerr,linestyle='--',color=colors_dark[0], label='HC negative')
-  # y = neutral_ts[HC_ind,:,day]
-  # ym = np.mean(y,axis=0)
-  # yerr = scipy.stats.sem(y,axis=0)
-  # plt.errorbar(x,ym,yerr=yerr,color=colors_dark[0], label='HC neutral')
-  # y = negative_ts[MDD_ind,:,day]
-  # ym = np.mean(y,axis=0)
-  # yerr = scipy.stats.sem(y,axis=0)
-  # plt.errorbar(x,ym,yerr=yerr,linestyle='--',color=colors_dark[1], label='MDD negative')
-  # y = neutral_ts[MDD_ind,:,day]
-  # ym = np.mean(y,axis=0)
-  # yerr = scipy.stats.sem(y,axis=0)
-  # plt.errorbar(x,ym,yerr=yerr,color=colors_dark[1], label='MDD neutral')
-  # labels_pos_v = np.concatenate([np.arange(-5,nTR)])
-  # labels_pos = labels_pos_v.astype(np.str)
-  # plt.xticks(np.arange(nTR),labels_pos,fontsize=30)
-  # plt.text(5, 0.5, 'stim on', ha='center', va='bottom', color='k',fontsize=25)
-  # plt.text(13, 0.5, 'stim off', ha='center', va='bottom', color='k',fontsize=25)
-  # plt.ylabel('z-scored activity')
-  # plt.xlabel('TR relative to block start')
-  # plt.plot([5,5],[-10,10],'--', lw=1, c='k')
-  # plt.plot([13,13],[-10,10],'--', lw=1, c='k')
-  # plt.ylim([-.7,.7])
-  # plt.legend()
-  # plt.savefig('thesis_plots_checked/faces_LA_day_1.pdf')
-  # #plt.show()
-
-  # day=1
-  # fig = plt.subplots(figsize=(19,10))
-  # sns.despine()
-  # y = negative_ts[HC_ind,:,day]
-  # ym = np.mean(y,axis=0)
-  # yerr = scipy.stats.sem(y,axis=0)
-  # plt.errorbar(x,ym,yerr=yerr,linestyle='--',color=colors_dark[0], label='HC negative')
-  # y = neutral_ts[HC_ind,:,day]
-  # ym = np.mean(y,axis=0)
-  # yerr = scipy.stats.sem(y,axis=0)
-  # plt.errorbar(x,ym,yerr=yerr,color=colors_dark[0], label='HC neutral')
-  # y = negative_ts[MDD_ind,:,day]
-  # ym = np.mean(y,axis=0)
-  # yerr = scipy.stats.sem(y,axis=0)
-  # plt.errorbar(x,ym,yerr=yerr,linestyle='--',color=colors_dark[1], label='MDD negative')
-  # y = neutral_ts[MDD_ind,:,day]
-  # ym = np.mean(y,axis=0)
-  # yerr = scipy.stats.sem(y,axis=0)
-  # plt.errorbar(x,ym,yerr=yerr,color=colors_dark[1], label='MDD neutral')
-  # labels_pos_v = np.concatenate([np.arange(-5,nTR)])
-  # labels_pos = labels_pos_v.astype(np.str)
-  # plt.xticks(np.arange(nTR),labels_pos,fontsize=30)
-  # plt.text(5, 0.5, 'stim on', ha='center', va='bottom', color='k',fontsize=25)
-  # plt.text(13, 0.5, 'stim off', ha='center', va='bottom', color='k',fontsize=25)
-  # plt.ylabel('z-scored activity')
-  # plt.xlabel('TR relative to block start')
-  # plt.plot([5,5],[-10,10],'--', lw=1, c='k')
-  # plt.plot([13,13],[-10,10],'--', lw=1, c='k')
-  # plt.ylim([-.7,.7])
-  # plt.legend()
-  # plt.savefig('thesis_plots_checked/faces_LA_day_3.pdf')
-  # #plt.show()
-
-  # now look at if you can let time vary there's an interaction - build data frame
-  # negative_diff_initial = negative_diff_block[:,:,0]
-  # negative_diff_final = negative_diff_block[:,:,1]
-
-  # data = negative_diff_initial.flatten()
-  # data2 = negative_diff_final.flatten()
-  # both_data = np.concatenate((data,data2),axis=0)
-  # nTR = 9
-  # # goes through all subjects first
-  # subjects = np.repeat(np.arange(nsubs),nTR)
-  # subjects2 = np.concatenate((subjects,subjects),axis=0)
-  # TR = np.tile(np.arange(nTR),nsubs)
-  # TR2 = np.concatenate((TR,TR),axis=0)
-
-  # group = [''] * len(subjects)
-  # for i in np.arange(len(subjects)):
-  #   if subjects[i] in MDD_ind:
-  #     group[i] = 'MDD'
-  #   elif subjects[i] in HC_ind:
-  #     group[i] = 'HC'
-  # group2 = group + group
-  # day = np.repeat(np.arange(2),len(subjects))
-  # all_data = {}
-  # all_data['activity'] = data
-  # all_data['TR'] = TR
-  # all_data['group'] = group
-  # all_data['subjects'] = subjects
-  # df = pd.DataFrame.from_dict(all_data)
-  # model = ols('activity ~ group*TR',df).fit()
-  # model.summary()
-  # all_data2 = {}
-  # all_data2['activity'] = both_data
-  # all_data2['TR'] = TR2
-  # all_data2['group'] = group2
-  # all_data2['subjects'] = subjects2
-  # all_data2['day'] = day
-  # df2 = pd.DataFrame.from_dict(all_data2)
-  # model = ols('activity ~ group*day',df2).fit()
-  # model.summary()
-  # # difference between group
-  # df3 = df2[df2['TR']==7]
-  # model = ols('activity ~ group*day',df3).fit()
-  # model.summary()
+  # now repeat with positive
+  pos_diff = happy_ts - neutral_ts
+  pos_diff_block = pos_diff[:,7:16,:]
+  day = 0
+  # average time series over block, now shifted
+  mdd_average = np.mean(pos_diff_block[MDD_ind,:,day],axis=1)
+  hc_average = np.mean(pos_diff_block[HC_ind,:,day],axis=1)
+  t,p = scipy.stats.ttest_ind(mdd_average,hc_average)
+  printStatsResults('LA - average POS-neutral time series on day 1 difference 1-sided',t,p/2,mdd_average,hc_average)
+  
+  # (2) plot difference in pos - neutral faces pre-neurofeedback
+  fig = plt.subplots(figsize=(19,10))
+  sns.despine()
+  x = np.arange(nTR)
+  day=0
+  y = pos_diff[HC_ind,:,day]
+  ym = np.mean(y,axis=0)
+  yerr = scipy.stats.sem(y,axis=0)
+  plt.errorbar(x,ym,yerr=yerr,linewidth=5,color=colors_dark[0])
+  y = pos_diff[MDD_ind,:,day]
+  ym = np.mean(y,axis=0)
+  yerr = scipy.stats.sem(y,axis=0)
+  plt.errorbar(x,ym,yerr=yerr,linewidth=5,color=colors_dark[1])
+  labels_pos_v = np.concatenate([np.arange(-5,nTR)])
+  labels_pos = labels_pos_v.astype(np.str)
+  plt.xticks(np.arange(nTR),labels_pos,fontsize=25)
+  plt.yticks(fontsize=25)
+  plt.text(5, 0.35, 'stim on', ha='center', va='bottom', color='k',fontsize=25)
+  plt.text(13, 0.35, 'stim off', ha='center', va='bottom', color='k',fontsize=25)
+  plt.ylabel('')
+  plt.xlabel('')
+  plt.title('')
+  plt.plot([5,5],[-10,0.3],'--', lw=2, c='k')
+  plt.plot([13,13],[-10,0.3],'--', lw=2, c='k')
+  plt.ylim([-.7,.7])
+  x,y = nonNan(pos_diff[MDD_ind,14,day],pos_diff[HC_ind,14,day])
+  t,p = scipy.stats.ttest_ind(x,y)
+  #plt.legend(loc=2)
+  addComparisonStat_SYM(p/2,14,14,0.4,0.05,0,'$MDD > HC$')
+  printStatsResults('ACC pos-neutral time series on day 1, tr 14, MDD-HC 1-sided',t,p/2,x,y)
+  plt.savefig('thesis_plots_checked/LA_faces_POS_diff_day_1.eps')
 
   return
+########################################################################################################################
+def plotFacesBehav(subjects, subject_ids):
+  sadbias_RT, happybias_RT, accuracy, sadbias_accuracy, happybias_accuracy = getFacesBehav(subjects, subject_ids)
+  # first is there a ceiling effect for accuracy?
+  sub_acc_average = np.nanmean(accuracy, axis=1)
+  # total accuracy:
+  print('total accuracy is', np.mean(sub_acc_average))
+  print('SEM is ', scipy.stats.sem(sub_acc_average))
+  print('total MDD accuracy is', np.mean(sub_acc_average[MDD_ind]))
+  print('SEM MDD is ', scipy.stats.sem(sub_acc_average[MDD_ind]))
+  print('total HC accuracy is', np.mean(sub_acc_average[HC_ind]))
+  print('SEM HC is ', scipy.stats.sem(sub_acc_average[HC_ind]))
+
+  x,y = nonNan(sub_acc_average[MDD_ind], sub_acc_average[HC_ind])
+  t,p = scipy.stats.ttest_ind(x,y)
+  printStatsResults('MDD diff HC average accuracy',t,p,x,y)
+  # now go to RT
+  x,y = nonNan(sadbias_RT[MDD_ind,0], sadbias_RT[HC_ind,0])
+  t,p = scipy.stats.ttest_ind(x,y)
+  printStatsResults('MDD diff HC sadbias RT, day 1',t,p,x,y)
+
+  x,y = nonNan(happybias_RT[MDD_ind,0], happybias_RT[HC_ind,0])
+  t,p = scipy.stats.ttest_ind(x,y)
+  printStatsResults('MDD diff HC happybias RT, day 1',t,p,x,y)
+  return 
 
 
 ########################################################################################################################
@@ -1561,18 +1686,27 @@ def plotNetworkAnalysis(subjects,combined_diff):
 def plotAUC(subjects):
   take_half = 0
   day_average = getAUC(subjects, take_half)
+  # should actually collapse across days for subject average
+  total_average = np.nanmean(day_average, axis=1) # so now each subject has 1 average
   # print averages by group
   print('****')
-  print('average for all subjects is:', np.mean(day_average.flatten()))
-  print('SEM is ', scipy.stats.sem(day_average.flatten()))
+  print('average for all subjects is:', np.mean(total_average))
+  print('SEM is ', scipy.stats.sem(total_average))
   print('****')
-  print('average for MDD group is:', np.mean(day_average[MDD_ind,:].flatten()))
-  print('SEM is ', scipy.stats.sem(day_average[MDD_ind,:].flatten()))
+  print('average for MDD group is:', np.mean(total_average[MDD_ind]))
+  print('SEM is ', scipy.stats.sem(total_average[MDD_ind]))
   print('****')
-  print('average for HC group is:', np.mean(day_average[HC_ind,:].flatten()))
-  print('SEM is ', scipy.stats.sem(day_average[HC_ind,:].flatten()))
+  print('average for HC group is:', np.mean(total_average[HC_ind]))
+  print('SEM is ', scipy.stats.sem(total_average[HC_ind]))
+
+  # first stat test - are group averages different?
+  x,y = nonNan(total_average[MDD_ind], total_average[HC_ind])
+  t,p = scipy.stats.ttest_ind(x,y)
+  printStatsResults('total average between groups', t,p,x,y)
+
   yfont=0.4
   yfontsize=25
+  topL = 1.0
   stat = day_average
   fig,ax = plotPosterStyle_DF(stat,subjects)
   plt.ylim([0.2,1.1])
@@ -1580,14 +1714,19 @@ def plotAUC(subjects):
   # plt.text(-.4,-1*yfont,'harder to ignore\nneutral faces',fontsize=yfontsize,va='bottom', ha='left')
   plt.xticks(np.arange(3),('V2\nNF 1', 'V3\nMid NF', 'V4\nNF 3'),fontsize=30)
   plt.plot([-1,5],[0.5,0.5], '--', color='k', lw=1)
-  # x,y = nonNan(stat[HC_ind,0],stat[MDD_ind,0])
-  # t,p = scipy.stats.ttest_ind(x,y)
-  # addComparisonStat_SYM(p,-.2,.2,topL,0.05,0,r'$MDD \neq HC$')
-  # printStatsResults('behav sad bias 2-tailed MDD/HC, V1',t,p,x,y)
-  # x,y = nonNan(stat[MDD_ind,0],stat[MDD_ind,2])
-  # t,p = scipy.stats.ttest_rel(x,y)
-  # addComparisonStat_SYM(p/2,0.2,2.2,topL+.2,0.05,0,'$MDD_1 < MDD_5$')
-  # printStatsResults('behav sad bias 1-tailed MDD only V1-V5, V1',t,p/2,x,y)
+  # next stat tests - look by day
+  x,y = nonNan(day_average[MDD_ind,0], day_average[HC_ind,0])
+  t,p = scipy.stats.ttest_ind(x,y)
+  printStatsResults('day 1 group diff', t,p,x,y)
+  addComparisonStat_SYM(p,-.2,.2,topL,0.05,0,r'$MDD \neq HC$')
+  x,y = nonNan(day_average[MDD_ind,1], day_average[HC_ind,1])
+  t,p = scipy.stats.ttest_ind(x,y)
+  printStatsResults('day 2 group diff', t,p,x,y)
+  addComparisonStat_SYM(p,0.8,1.2,topL,0.05,0,r'$MDD \neq HC$')
+  x,y = nonNan(day_average[MDD_ind,2], day_average[HC_ind,2])
+  t,p = scipy.stats.ttest_ind(x,y)
+  printStatsResults('day 3 group diff', t,p,x,y)
+  addComparisonStat_SYM(p,1.8,2.2,topL,0.05,0,r'$MDD \neq HC$')
   plt.ylabel('')
   plt.title('')
   plt.xticks(np.arange(3),('', '', '', ''),fontsize=30)
@@ -1616,6 +1755,8 @@ def main():
     plotNetworkAnalysis(subjects,combined_diff)
   if plot_AUC:
     plotAUC(subjects)
+  if plot_faces_behav:
+    plotFacesBehav(subjects, subjects_id_list)
   return
 
 if __name__ == "__main__":

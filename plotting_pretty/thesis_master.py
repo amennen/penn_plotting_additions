@@ -1034,8 +1034,9 @@ def plotRestingState(subjects,func_con_subjects, M, d1, d2, d3):
 def plotFaces(subjects):
   colors_dark = ['#636363','#de2d26']
   
-  # for preregistration -- check dorsal_acc ROI
-  negative_ts, neutral_ts, happy_ts, nTR = getFaces3dTProjectData(subjects, 'acc')
+  # for preregistration -- check FG ROI
+  negative_ts, neutral_ts, happy_ts, nTR = getFaces3dTProjectData(subjects, 'FG')
+  # here we're only looking for negative differences
   negative_diff = negative_ts - neutral_ts
   negative_diff_block = negative_diff[:,7:16,:]
   day = 0
@@ -1043,7 +1044,7 @@ def plotFaces(subjects):
   mdd_average = np.mean(negative_diff_block[MDD_ind,:,day],axis=1)
   hc_average = np.mean(negative_diff_block[HC_ind,:,day],axis=1)
   t,p = scipy.stats.ttest_ind(mdd_average,hc_average)
-  printStatsResults('ACC - average neg-neutral time series on day 1 difference 1-sided',t,p/2,mdd_average,hc_average)
+  printStatsResults('FG - average neg-neutral time series on day 1 difference 1-sided',t,p/2,mdd_average,hc_average)
   negative_diff_block = negative_diff[:,7:16,:]
 
   # (1) plot difference in neg - neutral faces pre-neurofeedback
@@ -1078,51 +1079,8 @@ def plotFaces(subjects):
   t,p = scipy.stats.ttest_ind(x,y)
   #plt.legend(loc=2)
   addComparisonStat_SYM(p/2,14,14,0.4,0.05,0,'$MDD > HC$')
-  printStatsResults('ACC neg-neutral time series on day 1, tr 14, MDD-HC 1-sided',t,p/2,x,y)
-  plt.savefig('thesis_plots_checked/ACC_faces_LA_diff_day_1.eps')
-
-  # now repeat for happy ts
-  pos_diff = happy_ts - neutral_ts
-  pos_diff_block = pos_diff[:,7:16,:]
-  day = 0
-  # average time series over block, now shifted
-  mdd_average = np.mean(pos_diff_block[MDD_ind,:,day],axis=1)
-  hc_average = np.mean(pos_diff_block[HC_ind,:,day],axis=1)
-  t,p = scipy.stats.ttest_ind(mdd_average,hc_average)
-  printStatsResults('ACC - average POS-neutral time series on day 1 difference 1-sided',t,p/2,mdd_average,hc_average)
-  
-  # (2) plot difference in pos - neutral faces pre-neurofeedback
-  fig = plt.subplots(figsize=(19,10))
-  sns.despine()
-  x = np.arange(nTR)
-  day=0
-  y = pos_diff[HC_ind,:,day]
-  ym = np.mean(y,axis=0)
-  yerr = scipy.stats.sem(y,axis=0)
-  plt.errorbar(x,ym,yerr=yerr,linewidth=5,color=colors_dark[0])
-  y = pos_diff[MDD_ind,:,day]
-  ym = np.mean(y,axis=0)
-  yerr = scipy.stats.sem(y,axis=0)
-  plt.errorbar(x,ym,yerr=yerr,linewidth=5,color=colors_dark[1])
-  labels_pos_v = np.concatenate([np.arange(-5,nTR)])
-  labels_pos = labels_pos_v.astype(np.str)
-  plt.xticks(np.arange(nTR),labels_pos,fontsize=25)
-  plt.yticks(fontsize=25)
-  plt.text(5, 0.35, 'stim on', ha='center', va='bottom', color='k',fontsize=25)
-  plt.text(13, 0.35, 'stim off', ha='center', va='bottom', color='k',fontsize=25)
-  plt.ylabel('')
-  plt.xlabel('')
-  plt.title('')
-  plt.plot([5,5],[-10,0.3],'--', lw=2, c='k')
-  plt.plot([13,13],[-10,0.3],'--', lw=2, c='k')
-  plt.ylim([-.7,.7])
-  x,y = nonNan(pos_diff[MDD_ind,14,day],pos_diff[HC_ind,14,day])
-  t,p = scipy.stats.ttest_ind(x,y)
-  #plt.legend(loc=2)
-  addComparisonStat_SYM(p/2,14,14,0.4,0.05,0,'$MDD > HC$')
-  printStatsResults('ACC pos-neutral time series on day 1, tr 14, MDD-HC 1-sided',t,p/2,x,y)
-  plt.savefig('thesis_plots_checked/ACC_faces_POS_diff_day_1.eps')
-
+  printStatsResults('FG neg-neutral time series on day 1, tr 14, MDD-HC 1-sided',t,p/2,x,y)
+  plt.savefig('thesis_plots_checked/FG_faces_LA_diff_day_1.eps')
 
 
   # second input is ROI - this amygdala overlapping
@@ -1312,7 +1270,7 @@ def plotFaces(subjects):
   t,p = scipy.stats.ttest_ind(x,y)
   #plt.legend(loc=2)
   addComparisonStat_SYM(p/2,14,14,0.4,0.05,0,'$MDD > HC$')
-  printStatsResults('ACC pos-neutral time series on day 1, tr 14, MDD-HC 1-sided',t,p/2,x,y)
+  printStatsResults('LA pos-neutral time series on day 1, tr 14, MDD-HC 1-sided',t,p/2,x,y)
   plt.savefig('thesis_plots_checked/LA_faces_POS_diff_day_1.eps')
 
   return

@@ -839,6 +839,8 @@ def getFaces3dTProjectData(subjects,ROI):
         mask = dorsal_acc
     elif ROI == 'acc':
         mask = acc
+    if ROI == 'FG': # frontal gyrus
+        mask = "{0}/clusterABsphere.nii.gz".format(ROI_DIR)
     HC_ind = np.argwhere(subjects<100)[:,0]
     MDD_ind = np.argwhere(subjects>100)[:,0]
     sessions = [1,3]

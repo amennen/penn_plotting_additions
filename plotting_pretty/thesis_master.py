@@ -1651,6 +1651,11 @@ def plotAUC(subjects):
   print('average for all subjects is:', np.mean(total_average))
   print('SEM is ', scipy.stats.sem(total_average))
   print('****')
+  # calculate the t-test for the difference between average and 0.5
+  t,p = scipy.stats.ttest_1samp(total_average, 0.5)
+  printStatsResults('average AUC across all sub > 0.5 - 1-sided',t,p/2,total_average,[])
+  print(p/2)
+  print('****')
   print('average for MDD group is:', np.mean(total_average[MDD_ind]))
   print('SEM is ', scipy.stats.sem(total_average[MDD_ind]))
   print('****')

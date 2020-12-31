@@ -709,6 +709,47 @@ def plotTransitionMatrix(subjects,M,d1,d2,d3):
   plt.yticks(labels_pos_v,labels_pos,fontsize=25)
   plt.xlabel('')
   plt.savefig('thesis_plots_checked/nf_saddest_bargraph.eps')
+
+  ## EXTRA - 12/31/20 - ## plot all three days, first with mid
+  i=0
+  j=0
+  stat = all_matrices[i,j,:,:]
+  fig,ax = plotPosterStyle_DF(stat,subjects) # <-- the [0,2] grabs just day 1 and 3 of NF
+  x,y = nonNan(stat[MDD_ind,0],stat[HC_ind,0])
+  t,p = scipy.stats.ttest_ind(x,y)
+  addComparisonStat_SYM(p/2,-.2,.2,0.73,0.05,0,'$MDD > HC$')
+  printStatsResults('transition matrix neg stickiness: 1-tailed MDD HC early NF ',t,p/2,x,y)
+  x,y = nonNan(stat[MDD_ind,1],stat[HC_ind,1])
+  t,p = scipy.stats.ttest_ind(x,y)
+  addComparisonStat_SYM(p/2,0.8,1.2,0.73,0.05,0,'$MDD > HC$')
+  printStatsResults('transition matrix neg stickiness: 1-tailed MDD HC mid NF ',t,p/2,x,y)
+  x,y = nonNan(stat[MDD_ind,2],stat[HC_ind,2])
+  t,p = scipy.stats.ttest_ind(x,y)
+  addComparisonStat_SYM(p/2,0.8,2.2,np.nanmax(stat),0.05,0)
+  printStatsResults('transition matrix neg stickiness: 1-tailed MDD HC late NF ',t,p/2,x,y)
+  x,y = nonNan(stat[MDD_ind,0],stat[MDD_ind,1])
+  t,p = scipy.stats.ttest_rel(x,y)
+  addComparisonStat_SYM(p/2,0.2,1.2,np.nanmax(stat)+.1,0.05,0,'$MDD_E > MDD_M$')
+  printStatsResults('transition matrix neg stickiness: 1-tailed MDD early-mid NF ',t,p/2,x,y)
+
+  x,y = nonNan(stat[MDD_ind,0],stat[MDD_ind,2])
+  t,p = scipy.stats.ttest_rel(x,y)
+  addComparisonStat_SYM(p/2,0.2,2.2,np.nanmax(stat)+.1,0.05,0,'$MDD_E > MDD_L$')
+  printStatsResults('transition matrix neg stickiness: 1-tailed MDD early-late NF ',t,p/2,x,y)
+  # add interaction - I hardcoded this one after calculating it as 0.045 above
+  addComparisonStat_SYM(0.045,0,2,np.nanmax(stat)+.30,0,0,'group:visit',0)
+  plt.ylabel('sustained negative attention',fontsize=30)
+  plt.title('Sustained negative attention',fontsize=32)
+  plt.xticks(np.arange(3),('Early NF','Mid NF', 'Late NF'),fontsize=30)
+  # plt.ylabel('')
+  # plt.title('')
+  # plt.xticks(np.arange(2),('',''),fontsize=30)
+  plt.ylim([0,1.25])
+  labels_pos_v = np.array([0,0.5,1])
+  labels_pos = labels_pos_v.astype(np.str)
+  plt.yticks(labels_pos_v,labels_pos,fontsize=25)
+  plt.xlabel('')
+  plt.savefig('thesis_plots_checked/nf_saddest_bargraph_three_days.eps')
   #plt.show()
 
   # calculate the interaction between negative stickiness and group scores over time

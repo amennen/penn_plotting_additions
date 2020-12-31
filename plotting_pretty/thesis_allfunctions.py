@@ -23,6 +23,7 @@ from rtfMRI.Errors import ValidationError
 
 import matplotlib
 import matplotlib.pyplot as plt
+plt.switch_backend('agg')
 font = {'size'   : 22}
 import pandas as pd
 import seaborn as sns
@@ -41,7 +42,7 @@ import matplotlib.pyplot as plt
 import math
 
 # new version 8/7/20: setting path as global variable
-PROJECT_PATH =  '/cbica/projects/rtAtten/amennen/' # TODO: remove the amennen once done copying over
+PROJECT_PATH =  '/cbica/projects/rtAtten/' # TODO: remove the amennen once done copying over
 PROJECT_DATA_PATH = PROJECT_PATH + '/' + 'rtAttenPenn'
 
 def getMADRSscoresALL():
@@ -432,7 +433,9 @@ def buildMasterDict(subjects,take_half):
                 n_runs = np.shape(categSep)[0]
             elif d == 1:
                 if take_half:
-                    runs_taken = np.array([2,3,4])
+                    # change 12/31/20 - take the last runs of the second day
+                    #runs_taken = np.array([2,3,4])
+                    runs_taken = np.arange(5,d2_runs)
                 else:
                     runs_taken = np.arange(d2_runs)
                 categSep = CS[runs_taken,:,1]
